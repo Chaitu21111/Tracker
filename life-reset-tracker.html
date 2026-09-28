@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Life Reset">
+<title>Life Reset Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --white:#fff;
+    --black:#111;
+    --gray:#666;
+    --light:#f4f6f4;
+    --green:#2f8f52;
+    --green-light:#e8f5ec;
+    --border:#e7e9e7;
+    --shadow:0 10px 35px rgba(17,17,17,.06);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--white);color:var(--black);
+    font-family:Manrope,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font:inherit}
+  .app{max-width:900px;margin:0 auto;padding:24px 18px 48px}
+  .top{
+    display:flex;justify-content:space-between;gap:16px;align-items:flex-start;
+    padding:8px 2px 22px;border-bottom:1px solid var(--border)
+  }
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gray)}
+  h1{font-size:30px;line-height:1.1;margin:7px 0 0;font-weight:800;letter-spacing:-.04em}
+  .date{font-size:13px;color:var(--gray);margin-top:8px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;min-width:340px}
+  .stat{border:1px solid var(--border);border-radius:14px;padding:11px 12px;background:#fff}
+  .stat-label{font-size:10px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+  .stat-value{font-size:19px;font-weight:800;margin-top:3px}
+  .goal{
+    margin:20px 0 28px;padding:22px;border-radius:var(--radius);
+    background:var(--black);color:#fff;box-shadow:var(--shadow)
+  }
+  .goal-title{font-size:19px;font-weight:800;margin-bottom:14px}
+  .goal-list{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .goal-item{font-size:13px;line-height:1.45;color:#ddd}
+  .goal-item strong{display:block;color:#fff;margin-bottom:3px}
+  section{margin:0 0 25px}
+  .section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:10px}
+  .section-title{font-size:16px;font-weight:800;letter-spacing:-.02em}
+  .section-note{font-size:11px;color:var(--gray)}
+  .habits{display:grid;gap:8px}
+  .habit{
+    width:100%;border:1px solid var(--border);background:#fff;border-radius:16px;
+    padding:14px 15px;display:flex;align-items:center;gap:12px;text-align:left;
+    cursor:pointer;transition:.16s ease;box-shadow:0 2px 7px rgba(0,0,0,.015);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .habit:active{transform:scale(.99)}
+  .habit:hover{border-color:#cfd5d0}
+  .habit.done{border-color:#b8dfc3;background:var(--green-light)}
+  .check{
+    width:25px;height:25px;border-radius:50%;border:1.5px solid #c9ceca;
+    display:grid;place-items:center;flex:none;font-size:14px;font-weight:800;color:transparent;
+    background:#fff
+  }
+  .done .check{background:var(--green);border-color:var(--green);color:#fff}
+  .habit-text{flex:1;font-size:13px;font-weight:700}
+  .done .habit-text{color:#246e3d}
+  .done .habit-text{text-decoration:line-through;text-decoration-thickness:1px}
+  .weekly{
+    border:1px solid var(--border);border-radius:var(--radius);padding:16px;
+    background:#fff
+  }
+  .save-row{display:flex;gap:10px;margin:26px 0 30px}
+  .save{
+    flex:1;border:0;border-radius:14px;background:var(--green);color:#fff;
+    padding:14px;font-weight:800;cursor:pointer
+  }
+  .reset{
+    border:1px solid var(--border);border-radius:14px;background:#fff;padding:14px 18px;
+    font-weight:700;cursor:pointer
+  }
+  .recovery{
+    border-top:1px solid var(--border);padding-top:24px
+  }
+  .recovery-empty{color:var(--gray);font-size:13px;padding:14px 0}
+  .recovery-day{margin:12px 0}
+  .recovery-date{font-size:12px;font-weight:800;margin-bottom:7px}
+  .missed{display:flex;flex-wrap:wrap;gap:7px}
+  .missed-item{font-size:11px;color:#555;background:var(--light);padding:7px 9px;border-radius:9px}
+  .toast{
+    position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);
+    background:var(--black);color:#fff;border-radius:12px;padding:11px 15px;
+    font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;z-index:20
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .footer{font-size:11px;color:#999;text-align:center;margin-top:28px}
+  @media(max-width:700px){
+    .app{padding:18px 13px 38px}
+    .top{display:block}
+    h1{font-size:27px}
+    .stats{min-width:0;margin-top:15px}
+    .stat{padding:10px}
+    .stat-value{font-size:17px}
+    .goal{padding:18px;margin-top:17px}
+    .goal-list{grid-template-columns:1fr;gap:8px}
+    .habit{padding:13px 12px}
+    .habit-text{font-size:12.5px}
+  }
+  @media(min-width:701px){
+    .habits{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Life Reset Tracker</div>
+      <h1 id="today">—</h1>
+      <div class="date" id="dateText">—</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Day</div><div class="stat-value" id="dayCount">—</div></div>
+      <div class="stat"><div class="stat-label">Days left</div><div class="stat-value" id="daysLeft">—</div></div>
+      <div class="stat"><div class="stat-label">Current streak</div><div class="stat-value" id="currentStreak">0</div></div>
+      <div class="stat"><div class="stat-label">Max streak</div><div class="stat-value" id="maxStreak">0</div></div>
+      <div class="stat" style="grid-column:span 3"><div class="stat-label">Today's completion</div><div class="stat-value" id="completion">0%</div></div>
+    </div>
+  </header>
+
+  <div class="goal">
+    <div class="goal-title">Reset period · 01 Oct 2026 → 01 Apr 2027</div>
+    <div class="goal-list">
+      <div class="goal-item"><strong>Body</strong>Lose 10 KG by April 1st.</div>
+      <div class="goal-item"><strong>Software & AI</strong>Become intermediate/advanced.</div>
+      <div class="goal-item"><strong>Lifestyle</strong>Improve discipline and reduce junk habits.</div>
+    </div>
+  </div>
+
+  <main id="sections"></main>
+
+  <div class="save-row">
+    <button class="save" id="saveBtn">Save Progress</button>
+    <button class="reset" id="resetBtn">Reset Today</button>
+  </div>
+
+  <div class="recovery">
+    <div class="section-head">
+      <div class="section-title">Weekly Recovery</div>
+      <div class="section-note">Missed tasks · resets Monday</div>
+    </div>
+    <div id="recovery"></div>
+  </div>
+
+  <div class="footer">Data stays on this device using LocalStorage.</div>
+</div>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+(() => {
+  const START = new Date(2026,9,1);   // 01-Oct-2026 local
+  const END   = new Date(2027,3,1);   // 01-Apr-2027 local
+  const TOTAL_DAYS = 183;
+
+  const sections = [
+    {title:"Morning", items:[
+      ["face1","Face Wash #1"],["water1","Water Bottle #1"],["steps","10,000 Steps"],
+      ["workout1","Workout Session 1 (15 Minutes)"],["push1","Pushups Session 1"],
+      ["skill1","Skill Up Session 1 (30 Minutes)"]
+    ]},
+    {title:"Day / Evening", items:[
+      ["face2","Face Wash #2"],["water2","Water Bottle #2"],["meal1","Meal 1 (Healthy)"],
+      ["deficit","Calorie Deficit Maintained"]
+    ]},
+    {title:"Night", items:[
+      ["face3","Face Wash #3"],["water3","Water Bottle #3"],["meal2","Meal 2 (Healthy)"],
+      ["workout2","Workout Session 2 (15 Minutes)"],["push2","Pushups Session 2"],
+      ["skill2","Skill Up Session 2 (30 Minutes)"],["instagram","Instagram < 1.5 Hours"]
+    ]}
+  ];
+  const weekly = [
+    ["dsaNew","Learned 2 New DSA Topics This Week"],
+    ["dsaRevision","DSA Revision Completed"]
+  ];
+  const dailyItems = sections.flatMap(s => s.items);
+  const dailyIds = dailyItems.map(x => x[0]);
+
+  const KEY = "lifeResetTracker.v1";
+  let data = JSON.parse(localStorage.getItem(KEY) || '{"days":{},"weekly":{},"maxStreak":0}');
+
+  const pad = n => String(n).padStart(2,"0");
+  const keyFor = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayKey = keyFor(today);
+
+  function validDay(d){ return d >= START && d <= END; }
+  function dateFromKey(k){ const [y,m,day]=k.split("-").map(Number); return new Date(y,m-1,day); }
+  function completedFor(k){
+    const obj = data.days[k] || {};
+    return dailyIds.filter(id => obj[id] === true).length === dailyIds.length;
+  }
+  function isDaySuccessful(k){
+    if(!validDay(dateFromKey(k))) return false;
+    return completedFor(k);
+  }
+  function calculateCurrentStreak(){
+    let d = new Date(today);
+    // A future/early period has no streak.
+    if(d < START) return 0;
+    if(d > END) d = new Date(END);
+    let count = 0;
+    while(d >= START){
+      const k=keyFor(d);
+      if(!isDaySuccessful(k)) break;
+      count++;
+      d.setDate(d.getDate()-1);
+    }
+    return count;
+  }
+  function calculateMaxStreak(){
+    let max=0, run=0, d=new Date(START);
+    while(d<=END){
+      const k=keyFor(d);
+      if(isDaySuccessful(k)){run++;max=Math.max(max,run)} else run=0;
+      d.setDate(d.getDate()+1);
+    }
+    return max;
+  }
+  function save(){
+    data.maxStreak = Math.max(data.maxStreak || 0, calculateMaxStreak());
+    localStorage.setItem(KEY, JSON.stringify(data));
+    renderStats(); renderRecovery();
+  }
+  function showToast(msg){
+    const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),1300);
+  }
+
+  function renderHeader(){
+    const opts={weekday:"long",month:"long",day:"numeric",year:"numeric"};
+    document.getElementById("today").textContent=today.toLocaleDateString(undefined,{weekday:"long"});
+    document.getElementById("dateText").textContent=today.toLocaleDateString(undefined,opts);
+  }
+  function renderStats(){
+    const dayNum = today < START ? 0 : today > END ? TOTAL_DAYS : Math.floor((today-START)/86400000)+1;
+    const left = today < START ? TOTAL_DAYS : today >= END ? 0 : Math.ceil((END-today)/86400000);
+    const obj=data.days[todayKey]||{};
+    const done=dailyIds.filter(id=>obj[id]).length;
+    const pct=Math.round(done/dailyIds.length*100);
+    document.getElementById("dayCount").textContent = `${dayNum} / ${TOTAL_DAYS}`;
+    document.getElementById("daysLeft").textContent = left;
+    document.getElementById("currentStreak").textContent = calculateCurrentStreak();
+    document.getElementById("maxStreak").textContent = Math.max(data.maxStreak||0,calculateMaxStreak());
+    document.getElementById("completion").textContent = `${pct}%`;
+  }
+  function renderSections(){
+    const root=document.getElementById("sections"); root.innerHTML="";
+    const day=data.days[todayKey]||{};
+    [...sections,{title:"Weekly Tasks",items:weekly}].forEach((sec,si)=>{
+      const section=document.createElement("section");
+      section.innerHTML=`<div class="section-head"><div class="section-title">${sec.title}</div><div class="section-note">${sec.title==="Weekly Tasks"?"2 tasks":"Complete anytime today"}</div></div>`;
+      const habits=document.createElement("div"); habits.className=sec.title==="Weekly Tasks"?"habits weekly":"habits";
+      sec.items.forEach(([id,label])=>{
+        const b=document.createElement("button");
+        b.className="habit"+((sec.title==="Weekly Tasks"?data.weekly[id]:day[id])?" done":"");
+        b.innerHTML=`<span class="check">✓</span><span class="habit-text">${label}</span>`;
+        b.addEventListener("click",()=>{
+          if(sec.title==="Weekly Tasks"){
+            data.weekly[id]=!data.weekly[id];
+          }else{
+            data.days[todayKey]=data.days[todayKey]||{};
+            data.days[todayKey][id]=!data.days[todayKey][id];
+          }
+          save(); renderSections();
+        });
+        habits.appendChild(b);
+      });
+      section.appendChild(habits); root.appendChild(section);
+    });
+  }
+
+  function mondayOf(d){
+    const x=new Date(d); const day=x.getDay(); const diff=(day+6)%7;
+    x.setDate(x.getDate()-diff); x.setHours(0,0,0,0); return x;
+  }
+  function renderRecovery(){
+    const root=document.getElementById("recovery");
+    const monday=mondayOf(today);
+    const entries=[];
+    for(const [k,obj] of Object.entries(data.days)){
+      const d=dateFromKey(k);
+      if(d>=monday && d<=today && validDay(d)){
+        const missed=dailyItems.filter(([id])=>!obj[id]).map(([,label])=>label);
+        if(missed.length) entries.push({d,missed});
+      }
+    }
+    entries.sort((a,b)=>a.d-b.d);
+    if(!entries.length){root.innerHTML='<div class="recovery-empty">No missed daily tasks this week.</div>';return;}
+    root.innerHTML=entries.map(e=>`
+      <div class="recovery-day">
+        <div class="recovery-date">${e.d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}</div>
+        <div class="missed">${e.missed.map(x=>`<span class="missed-item">${x}</span>`).join("")}</div>
+      </div>`).join("");
+  }
+
+  document.getElementById("saveBtn").addEventListener("click",()=>{save();showToast("Progress saved");});
+  document.getElementById("resetBtn").addEventListener("click",()=>{
+    if(confirm("Reset all of today's daily tasks?")){
+      delete data.days[todayKey]; save(); renderSections(); showToast("Today reset");
+    }
+  });
+
+  renderHeader(); renderSections(); renderStats(); renderRecovery();
+})();
+</script>
+</body>
+</html>
